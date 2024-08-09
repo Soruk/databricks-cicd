@@ -1,0 +1,29 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+  
+variables:
+- group: DataBricksInfo
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+
+- script: |
+    pip install databricks-cli
+  displayName: 'Install Databricks CLI'
+
+- script: |
+    databricks configure --token <<EOF
+    $(DataBricksHost)
+    $(DataBricksToken)
+    EOF
+  displayName: 'Configure Databricks CLI'
+
+- script: |
+    databricks fs cp dbfs:/FileStore/sample_sales.csv . --overwrite
+  displayName: 'Download Sample Data from DBFS'
